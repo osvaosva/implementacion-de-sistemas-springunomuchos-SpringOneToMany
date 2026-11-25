@@ -1,0 +1,53 @@
+ENTREGABLE: Spring Boot JPA, relación uno a muchos
+
+1. ¿En qué tabla queda la llave foránea y qué propiedad de Java la controla?
+
+La llave foránea queda en la tabla "comentarios", en la columna producto_id.
+Esa columna dice a qué producto pertenece cada comentario.
+
+La propiedad de Java que la controla es "producto", dentro de la clase
+Comment. Está marcada con @ManyToOne. En la clase Product, la propiedad
+"comentarios" solo sirve para ver los comentarios de un producto, pero no
+crea ni controla esa columna.
+
+2. ¿Cuál es la diferencia entre List y Set?
+
+Las dos son colecciones de elementos.
+- List: guarda los elementos en orden y permite repetidos.
+- Set: no tiene un orden fijo y no permite repetidos.
+
+En este proyecto se usa Set porque un producto no debería tener el mismo
+comentario dos veces.
+
+3. ¿Por qué los identificadores son String y qué tipo de valor guardan?
+
+Porque los ids son UUID. Un UUID es un código único formado por letras y
+números, por ejemplo: 550e8400-e29b-41d4-a716-446655440000. Como tiene letras
+y guiones, no cabe en un número, así que se guarda como texto (String).
+Se usa porque cada registro recibe un código distinto y difícil de adivinar.
+
+4. ¿Qué ocurre al eliminar un producto con comentarios? ¿Qué cambia si se quita
+CascadeType.ALL?
+
+Con CascadeType.ALL, al borrar un producto también se borran
+automáticamente sus comentarios. Lo comprobé probando el DELETE: después de
+borrar el producto, sus comentarios ya no aparecían.
+
+Si se quita CascadeType.ALL, al borrar el producto sus comentarios no se
+borrarían solos. Como seguirían apuntando a un producto que ya no existe, la
+base de datos mostraría un error y no dejaría borrarlo. Habría que borrar
+primero los comentarios y después el producto.
+
+5. ¿Qué diferencia práctica hay entre los FetchType usados en Product y Comment?
+
+FetchType decide cuándo se cargan los datos relacionados.
+
+- En Product es EAGER: al pedir un producto, sus comentarios se cargan al
+  mismo tiempo. Por eso al consultar /productos ya aparecen los comentarios.
+- En Comment es LAZY: al pedir un comentario, su producto no se carga hasta
+  que se necesite.
+
+EAGER es cómodo porque los datos ya están listos, pero puede traer más
+información de la necesaria y hacer más lento el sistema. LAZY es más
+ligero, pero puede dar error si se intenta usar la relación cuando ya
+terminó la consulta a la base de datos.
